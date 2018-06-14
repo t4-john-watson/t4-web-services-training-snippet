@@ -82,5 +82,43 @@ This file contains plaintext snippets of content used in the Web Services API Tr
 
 ## node.js Activities
 
-
-
+### Mirror content to a branch recursively
+~~~
+const getSections = require("./lib/utilities/get_sections");
+~~~
+~~~
+function executeRequests(options) { 
+	getSections(1, options)
+		.then( sections => mirrorContentToSections(sections, 242, 12, options, logMessage) 
+	); 
+}
+~~~
+~~~
+function mirrorContentToSections(sections, source, contentId, options, callback) {
+	options.method = "LINK";
+	options.path = `${options.pathPrefix}content`;
+	sections.forEach((section) => {
+		var postData = {
+			"source": source,
+			"destination":section.id,
+			"contents":{
+				[contentId]:[] 
+			}
+		} 
+		postData = JSON.stringify(postData);
+		options['headers']['Content-Type'] = "Application/json";
+		options['headers']['Content-Length'] = Buffer.byteLength(postData);
+		Req(options, postData)
+			.then(response => callback(response, `mirrored into section ${section.id}`))
+			.catch(error => console.log(error));
+	});
+}
+~~~
+~~~
+function executeRequests(options) {
+	getSections(1, options)
+		.then(
+		   sections => mirrorContentToSections(sections, 242, 12, options, logMessage)
+		);
+}
+~~~
